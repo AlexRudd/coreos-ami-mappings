@@ -5,6 +5,8 @@ STABLE_CHANNEL="aws-stable.json"
 BETA_CHANNEL="aws-beta.json"
 ALPHA_CHANNEL="aws-alpha.json"
 
+MAP_NAME="AWSRegionToAMI"
+
 # check for required tools
 hash jq 2>/dev/null || { echo >&2 "jq required (https://stedolan.github.io/jq/). Aborting."; exit 1; }
 hash curl 2>/dev/null || { echo >&2 "curl required (https://curl.haxx.se/). Aborting."; exit 1; }
@@ -70,7 +72,7 @@ while IFS= read -d $'\0' -r file ; do
 done < <(find ./ -name "$template_path" -print0)
 
 #get new ami's
-updated_amis="{\"Mappings\":$(curl -s $feed_url | jq -c 'del(.release_info)')}"
+updated_amis="{\"Mappings\":{\"$MAP_NAME\":$(curl -s $feed_url | jq -c 'del(.release_info)')}}"
 if ! $replace; then
   echo $updated_amis | jq '.'
   exit 0
